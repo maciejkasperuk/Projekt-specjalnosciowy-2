@@ -23,6 +23,13 @@ class ProductController extends AbstractController
             'products' => $productRepository->findAll(),
         ]);
     }
+    #[Route('/random', name: 'app_random', methods: ['GET'])]
+    public function blyet(): Response
+    {
+        return $this->render('random.html.twig', [
+            'blyet' => 'dddupa',
+        ]);
+    }
 
     #[Route('/new', name: 'app_product_new', methods: ['GET', 'POST'])]
     public function new(Request $request, ProductRepository $productRepository): Response

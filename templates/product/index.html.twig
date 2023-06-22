@@ -1,39 +1,38 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Product index{% endblock %}
-
 {% block body %}
-    <h1>Product index</h1>
+   <script src="https://cdn.tailwindcss.com"></script>
 
     <table class="table">
         <thead>
             <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>actions</th>
+                <th class="px-4 py-2 bg-blue-500 text-white">Id</th>
+                <th class="px-4 py-2 bg-blue-500 text-white">Name</th>
+                <th class="px-4 py-2 bg-blue-500 text-white">Description</th>
+                <th class="px-4 py-2 bg-blue-500 text-white">Price</th>
+                <th class="px-4 py-2 bg-blue-500 text-white">Actions</th>
             </tr>
         </thead>
         <tbody>
         {% for product in products %}
             <tr>
-                <td>{{ product.id }}</td>
-                <td>{{ product.name }}</td>
-                <td>{{ product.description }}</td>
-                <td>{{ product.price }}</td>
-                <td>
-                    <a href="{{ path('app_product_show', {'id': product.id}) }}">show</a>
-                    <a href="{{ path('app_product_edit', {'id': product.id}) }}">edit</a>
+                <td class="border px-4 py-2">{{ product.id }}</td>
+                <td class="border px-4 py-2">{{ product.name }}</td>
+                <td class="border px-4 py-2">{{ product.description }}</td>
+                <td class="border px-4 py-2">{{ product.price }}</td>
+                <td class="border px-4 py-2">
+                    <a href="{{ path('app_product_show', {'id': product.id}) }}" class="text-blue-600">show</a>
+                    <a href="{{ path('app_product_edit', {'id': product.id}) }}" class="text-blue-600">edit</a>
+                     <a href="{{ path('app_product_delete', {'id': product.id}) }}" class="text-blue-600">delete</a>
                 </td>
             </tr>
         {% else %}
             <tr>
-                <td colspan="5">no records found</td>
+                <td class="border px-4 py-2" colspan="5">no records found</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 
-    <a href="{{ path('app_product_new') }}">Create new</a>
+    <a href="{{ path('app_product_new') }}" class="text-blue-600">Create new</a>
 {% endblock %}
