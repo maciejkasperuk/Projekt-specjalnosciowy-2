@@ -8,6 +8,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Encoder\CsvEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/product')]
 class ProductController extends AbstractController
@@ -76,5 +80,47 @@ class ProductController extends AbstractController
         }
 
         return $this->redirectToRoute('app_product_index', [], Response::HTTP_SEE_OTHER);
+    }
+    #[Route('/export/json', name: 'app_product_export_json', methods: ['GET'])]
+    public function exportToJson(ProductRepository $productRepository, SerializerInterface $serializer): Response
+    {
+        $products = $productRepository->findAll();
+        $jsonContent = $serializer->serialize($products, 'json');
+
+        $response = new Response($jsonContent);
+        $response->headers->set('Content-Type', 'application/json');
+        $response->headers->set('Content-Disposition', 'attachment; filename=products.json');
+
+        return $response;
+    }
+
+    #[Route('/export/yaml', name: 'app_product_export_yaml', methods: ['GET'])]
+    public function exportToYaml(ProductRepository $productRepository, SerializerInterface $serializer): Response
+    {
+        $products = $productRepository->findAll();
+        $yamlContent = $serializer->serialize($products, 'yaml');
+
+        $response = new Response($yamlContent);
+        $response->headers->set('Content-Type', 'application/yaml');
+        $response->headers->set('Content-Disposition', 'attachment; filename=products.yaml');
+
+        return $response;
+    }
+
+    #[Route('/export/csv', name: 'app_product_export_csv', methods: ['GET'])]
+    public function exportToCsv(ProductRepository $productRepository, SerializerInterface $serializer): Response
+    {
+        $products = $productRepository->findAll();
+        $encoders = [new CsvEncoder()];
+        $normalizers = [new ObjectNormalizer()];
+
+        $serializer = new Serializer($normalizers, $encoders);
+        $csvContent = $serializer->serialize($products, 'csv');
+
+        $response = new Response($csvContent);
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename=products.csv');
+
+        return $response;
     }
 }
