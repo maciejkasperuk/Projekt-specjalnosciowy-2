@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\ProductRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
@@ -59,6 +61,31 @@ class Product
     public function setPrice(int $price): self
     {
         $this->price = $price;
+
+        return $this;
+    }
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     *
+     * @Assert\File(
+     *     maxSize="2M",
+     *     mimeTypes={"image/jpeg", "image/png"},
+     *     mimeTypesMessage="Please upload a valid image (jpeg, png)"
+     * )
+     */
+    #[ORM\Column(nullable: true)]
+    private ?string $image;
+
+
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): self
+    {
+        $this->image = $image;
 
         return $this;
     }

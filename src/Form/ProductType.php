@@ -1,9 +1,12 @@
 <?php
 
+// src/Form/ProductType.php
+
 namespace App\Form;
 
 use App\Entity\Product;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -15,7 +18,10 @@ class ProductType extends AbstractType
             ->add('name')
             ->add('description')
             ->add('price')
-        ;
+            ->add('image', FileType::class, [
+                'label' => 'Product Image',
+                'required' => false,
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -25,3 +31,5 @@ class ProductType extends AbstractType
         ]);
     }
 }
+
+

@@ -3,8 +3,10 @@
 namespace App\Controller;
 use App\Entity\Product;
 use App\Form\ProductType;
+use App\Form\ProductType2;
 use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,7 +25,7 @@ class ProductController extends AbstractController
             'products' => $productRepository->findAll(),
         ]);
     }
-   
+
 
     #[Route('/new', name: 'app_product_new', methods: ['GET', 'POST'])]
     public function new(Request $request, ProductRepository $productRepository): Response
@@ -33,6 +35,14 @@ class ProductController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Ręczne przetwarzanie pliku
+            $file = $form->get('image')->getData();
+            if ($file) {
+                $fileName = md5(uniqid()).'.'.$file->guessExtension();
+                $file->move($this->getParameter('images_directory'), $fileName);
+                $product->setImage($fileName);
+            }
+
             $productRepository->save($product, true);
 
             return $this->redirectToRoute('app_product_index', [], Response::HTTP_SEE_OTHER);
@@ -40,7 +50,7 @@ class ProductController extends AbstractController
 
         return $this->render('product/new.html.twig', [
             'form' => $form->createView(),
-            ]);
+        ]);
     }
    
     #[Route('/{id}', name: 'app_product_show', methods: ['GET'])]
@@ -50,24 +60,42 @@ class ProductController extends AbstractController
             'product' => $product,
         ]);
     }
-    
+
 
     #[Route('/{id}/edit', name: 'app_product_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Product $product, ProductRepository $productRepository): Response
     {
-        $form = $this->createForm(ProductType::class, $product);
+        $form = $this->createForm(ProductType2::class, null, [
+            'data_class' => null,
+        ]);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $productRepository->save($product, true);
+            $data = $form->getData(); // Get form data as an array
+
+            // Assuming you have a method in your repository to update the product
+            $productRepository->updateProduct($product, $data);
+
+            $this->addFlash('success', 'Changes saved successfully!');
 
             return $this->redirectToRoute('app_product_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('product/edit.html.twig', [
+        return $this->render('product/edit.html.twig', [
             'product' => $product,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
+    }
+
+    private function uploadImage(UploadedFile $file): string
+    {
+        $uploadsDirectory = $this->getParameter('images_directory');
+        $newFilename = uniqid().'.'.$file->guessExtension();
+
+        $file->move($uploadsDirectory, $newFilename);
+
+        return $newFilename;
     }
    
     
@@ -123,4 +151,6 @@ class ProductController extends AbstractController
 
         return $response;
     }
+
+
 }

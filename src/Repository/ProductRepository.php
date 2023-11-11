@@ -38,7 +38,16 @@ class ProductRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+    public function updateProduct(Product $product, array $data): void
+    {
+        // Assuming 'name', 'description', 'price' are keys in the data array
+        $product->setName($data['name']);
+        $product->setDescription($data['description']);
+        $product->setPrice($data['price']);
 
+        $this->getEntityManager()->persist($product);
+        $this->getEntityManager()->flush();
+    }
 //    /**
 //     * @return Product[] Returns an array of Product objects
 //     */
